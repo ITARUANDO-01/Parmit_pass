@@ -26,18 +26,31 @@
 function key_generate() {
    # 秘密鍵の名前を格納
    sec_key_name=$(echo $2)
+   
+   # 既に同名の秘密鍵ファイルが存在していないかチェック
+   ls ~/.ssh/"$sec_key_name" >& /dev/null
+
+   # 上記の存在確認
+   if [ $? -eq 0 ] ; then
+
+	   echo '指定された秘密鍵名は既に~/.ssh/に存在するようです。別名を指定してください。'
+	   exit 1
+
+	fi
 
    echo '秘密鍵'"$sec_key_name"'を作成します'
    # 秘密鍵を作成
-   ssh-keygen -t rsa -f "$sec_key_name"
-
-   ls ~/.ssh/"$sec_key_name" >& /dev/null
-   
+   ssh-keygen -t rsa -f ~/.ssh/"$sec_key_name"
 
    if [ $? -eq 0 ] ; then
 
       echo '秘密鍵の作成が完了しました。秘密鍵は以下のパスに存在します'
       find `pwd`/.ssh -maxdepth 1 -mindepth 1  | grep "$sec_key_name"
+   
+   else
+
+	   echo '秘密鍵の作成処理が失敗しています。'
+       exit 1
 
    fi   
 
