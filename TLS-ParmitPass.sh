@@ -34,6 +34,38 @@ function key_generate() {
    # 秘密鍵の名前を格納
    sec_key_name=$(echo $1)
    
+   # 秘密鍵の名前指定が無い場合、「id_rsa」で問題無いか確認
+   if [ "$sec_key_name" -eq "" ] ; then
+   
+      echo '鍵の名前指定がありませんでした。その場合デフォルトのid_rsaとなりますが問題ありませんか。(yes/no)'
+      
+      read answer
+
+      case $answer in
+
+        yes)
+        
+        echo 'id_rsa'で鍵を作成致します
+        
+        sec_key_name=$(echo 'id_rsa')
+
+        ;;
+
+        no)
+
+        echo '一旦処理を終了します。次回鍵ファイルの名前指定を実施して下さい。'
+        
+        exit 1
+        ;;
+
+        *)
+        echo 'yesかnoで回答して下さい'
+        ;;
+      
+      esac
+
+   fi
+ 
    # 既に同名の秘密鍵ファイルが存在していないかチェック
    ls ~/.ssh/"$sec_key_name" >& /dev/null
 
@@ -175,7 +207,7 @@ fi
 # 第2引数チェック処理
 
 case "$fst_arg" in
-   # USAGE表示の際は、特に何も実施しない
+   # USAGE表示及び鍵作成の際は、特に何も実施しない
    -[hg] ) : ;;
 
    # その他の処理は、指定されたファイルの存在チェックを行う。
@@ -197,7 +229,7 @@ esac
 
 case "$fst_arg" in
    # 秘密鍵作成及びUSAGE表示の際は、特に何も実施しない
-   "-[gh]" ) : ;;
+   -[gh] ) : ;;
 
    # その他の処理は、指定されたファイルの存在チェックを行う。
    * ) 
