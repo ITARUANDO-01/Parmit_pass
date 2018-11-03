@@ -1,5 +1,5 @@
 #!/bin/bash
-set -vx
+#set -vx
 #========================================================================================
 # スクリプト名：TLS-ParmitPass.sh
 # 概 要 　　　：秘密鍵を使用したopensslコマンドにて、パスワードの暗号及び復号を行う。また
@@ -84,18 +84,25 @@ function key_generate() {
 
    fi
 
-   echo '秘密鍵'"$sec_key_name"'及び公開鍵'"$sec_key_name"'.pemを作成します'
+   echo '秘密鍵'"$sec_key_name"'.pum及び公開鍵pub_'"$sec_key_name"'.pemを作成します'
    # 秘密鍵を作成
-   ssh-keygen -t rsa -f ~/.ssh/"$sec_key_name" -N ''
+   openssl genrsa -out ~/"$sec_key_name".pem 2048
+   # 処理ステータスを格納
+   pemkey_make=$(echo $?) 
 
-   if [ $? -eq 0 ] ; then
+   # 公開鍵を作成
+   openssl rsa -in ~/"$sec_key_name".pem -pubout -out ~/pub_"$sec_key_name".pem
+   # 処理ステータスを格納
+   pubkey_make=$(echo $?)
 
-      echo '秘密鍵の作成が完了しました。秘密鍵及び公開鍵は以下のパスに存在します'
-      find ~/.ssh -maxdepth 1 -mindepth 1  | grep "$sec_key_name"
+   if [ "$pemkey_make" -eq 0 -a "$pubkey_make" -eq 0 ] ; then
+
+      echo '秘密鍵及び公開鍵の作成が完了しました。秘密鍵及び公開鍵は以下のパスに存在します'
+      find ~/ -maxdepth 1 -mindepth 1  | grep "$sec_key_name"
    
    else
 
-      echo '秘密鍵の作成処理が失敗しています。'
+      echo '秘密鍵若しくは公開鍵の作成処理が失敗しています。'
       exit 1
 
    fi   
