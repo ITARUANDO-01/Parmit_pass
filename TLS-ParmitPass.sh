@@ -1,5 +1,5 @@
 #!/bin/bash
-#set -vx
+set -vx
 #========================================================================================
 # スクリプト名：TLS-ParmitPass.sh
 # 概 要 　　　：秘密鍵を使用したopensslコマンドにて、パスワードの暗号及び復号を行う。また
@@ -142,26 +142,23 @@ function file_decrypton() {
    parmitkey_file=$(echo $2)
    
    # 指定されたフイルをcatコマンドで出力、出力結果を複合する
-   decript_word=$(cat "$decripton_file" | openssl rsautl -decrypt -inkey "$parmitley_file")
+   decript_word=$(cat "$decripton_file" | openssl rsautl -decrypt -inkey "$parmitkey_file")
    
    # 上記の復号処理の結果(catした処理と復号した処理)を一時ファイルに書き出す
-   echo "{$pipestatus[@]}" > /var/tmp/decript_status
-   
+   dec_status=$(echo "${PIPESTATUS[@]}")
+
    # catした処理のステータスコードを格納 
-   cat_status=$(cat /var/tmp/decript_status | awk '{print $1}')
+   cat_status=$(echo "$dec_status" | awk '{print $1}')
    
    # opensslの処理のステータスコードを格納
-   openssl_status=$(cat /var/tmp/decript_status | awk '{print $2}')
+   openssl_status=$(echo "$dec_status" | awk '{print $2}')
    
-   # 一時ファイルである/var/tmp/decript_statusを削除
-   rm /var/tmp/decript_status
-
-   if [ $cat_status -ne 0 ] ; then
+   if [ "$cat_status" -ne 0 ] ; then
 	   
       echo '暗号化ファイルがうまく出力出来なかったようです。処理を中断します。'
       exit 1
 
-   elif [ $openssl_status -ne 0 ] ; then
+   elif [ "$openssl_status" -ne 0 ] ; then
 
       echo '暗号化ファイルの復号がうまく行かなかったようです。'
       exit 1
