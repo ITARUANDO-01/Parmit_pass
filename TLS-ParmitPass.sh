@@ -35,34 +35,41 @@ function key_generate() {
    sec_key_name=$(echo $1)
    
    # 秘密鍵の名前指定が無い場合、「id_rsa」で問題無いか確認
-   if [ "$sec_key_name" -eq "" ] ; then
+   if [ "$sec_key_name" = "" ] ; then
    
       echo '鍵の名前指定がありませんでした。その場合デフォルトのid_rsaとなりますが問題ありませんか。(yes/no)'
       
-      read answer
+      while true ; do
 
-      case $answer in
+         read answer
 
-        yes)
+         case $answer in
+
+            yes)
         
-        echo 'id_rsa'で鍵を作成致します
+		    echo 'id_rsa'で鍵を作成致します
         
-        sec_key_name=$(echo 'id_rsa')
+            sec_key_name=$(echo 'id_rsa')
+            ### ループから抜ける
+		    break
 
-        ;;
+            ;;
 
-        no)
+            no)
 
-        echo '一旦処理を終了します。次回鍵ファイルの名前指定を実施して下さい。'
-        
-        exit 1
-        ;;
+            echo '一旦処理を終了します。次回鍵ファイルの名前指定を実施して下さい。'
+           
+            exit 1
+            ;;
 
-        *)
-        echo 'yesかnoで回答して下さい'
-        ;;
+            *)
+            
+			echo 'yesかnoで回答して下さい'
+            ;;
       
-      esac
+         esac
+
+	  done
 
    fi
  
@@ -97,13 +104,13 @@ function key_generate() {
 
 function file_encryption() {
    # 暗号化するパスワードファイルのパスを格納
-   encryption_file=$(echo $2)
+   encryption_file=$(echo $1)
 
    # 指定された公開鍵のパスを格納
-   publickey_file=$(echo $3)
+   publickey_file=$(echo $2)
    
    # 公開鍵を利用したファイルの暗号化処理
-   openssl rsautl -pubin -inkey "$publicley_file" -in "$encryption_file" -encrypt -out ./encriptionfile.txt
+   openssl rsautl -pubin -inkey "$publickey_file" -in "$encryption_file" -encrypt -out ./encriptionfile.txt
 
    # 暗号化処理が成功しているかの確認処理
    if [ $? -eq 0 ] ; then
@@ -122,10 +129,10 @@ function file_encryption() {
 
 function file_decrypton() {
    # 復号化するパスワードファイルのパスを格納
-   decripton_file=$(echo $2)
+   decripton_file=$(echo $1)
    
    #　指定された秘密鍵のパスを格納
-   parmitkey_file=$(echo $3)
+   parmitkey_file=$(echo $2)
    
    # 指定されたフイルをcatコマンドで出力、出力結果を複合する
    decript_word=$(cat "$decripton_file" | openssl rsautl -decrypt -inkey "$parmitley_file")
@@ -258,10 +265,10 @@ for OPT in "$@" ; do
       -g ) key_generate "$snd_arg" ;;
 
       # 第1引数にeオプションが指定された場合は、パスワードファイルの暗号化
-      -e ) file_encryption "$snd_arg" "$tnd_arg" ;;
+      -e ) file_encryption "$snd_arg" "$thd_arg" ;;
 
       # 第1引数にdオプションが指定された場合は、暗号化されたパスワードファイルを復号
-      -d ) file_decrypton "$snd_arg" "$tnd_arg" ;;
+      -d ) file_decrypton "$snd_arg" "$thd_arg" ;;
 
       # 第1引数にhオプションが指定された場合は、USAGE表示
       -h ) usage_display ;;
